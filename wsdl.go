@@ -224,6 +224,10 @@ func (wsdl *wsdlDefinitions) GetInputMessagePartFromWsdlOperation(operation stri
 		}
 	}
 
+	if portType == nil {
+		return ""
+	}
+
 	for _, o := range portType.Operations {
 		if o.Name == operation {
 			message = trimNamespace(o.Inputs[0].Message)
