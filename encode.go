@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	soapPrefix = "soap"
+	soapPrefix                            = "soap"
 	customEnvelopeAttrs map[string]string = nil
 )
 
@@ -44,7 +44,7 @@ func (c process) MarshalXML(e *xml.Encoder, _ xml.StartElement) error {
 		tokens.endHeader(c.Client.HeaderName)
 	}
 
-	err := tokens.startBody(c.Request.Method, namespace)
+	err := tokens.startBody(c.MessagePart, namespace)
 	if err != nil {
 		return err
 	}
@@ -52,7 +52,7 @@ func (c process) MarshalXML(e *xml.Encoder, _ xml.StartElement) error {
 	tokens.recursiveEncode(c.Request.Params)
 
 	//end envelope
-	tokens.endBody(c.Request.Method)
+	tokens.endBody(c.MessagePart)
 	tokens.endEnvelope()
 
 	for _, t := range tokens.data {
@@ -130,7 +130,7 @@ func (tokens *tokenData) startEnvelope() {
 		e.Attr = make([]xml.Attr, 0)
 		for local, value := range customEnvelopeAttrs {
 			e.Attr = append(e.Attr, xml.Attr{
-				Name: xml.Name{Space: "", Local: local},
+				Name:  xml.Name{Space: "", Local: local},
 				Value: value,
 			})
 		}

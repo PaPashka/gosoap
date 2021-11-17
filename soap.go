@@ -170,13 +170,18 @@ func (c *Client) Do(req *Request) (res *Response, err error) {
 	}
 
 	p := &process{
-		Client:     c,
-		Request:    req,
-		SoapAction: c.Definitions.GetSoapActionFromWsdlOperation(req.Method),
+		Client:      c,
+		Request:     req,
+		SoapAction:  `"` + c.Definitions.GetSoapActionFromWsdlOperation(req.Method) + `"`,
+		MessagePart: c.Definitions.GetInputMessagePartFromWsdlOperation(req.Method),
 	}
 
 	if p.SoapAction == "" && c.AutoAction {
 		p.SoapAction = fmt.Sprintf("%s/%s/%s", c.URL, c.Definitions.Services[0].Name, req.Method)
+	}
+
+	if p.MessagePart == "" {
+		p.MessagePart = p.Request.Method
 	}
 
 	p.Payload, err = xml.MarshalIndent(p, "", "    ")
@@ -212,10 +217,11 @@ func (c *Client) Do(req *Request) (res *Response, err error) {
 }
 
 type process struct {
-	Client     *Client
-	Request    *Request
-	SoapAction string
-	Payload    []byte
+	Client      *Client
+	Request     *Request
+	SoapAction  string
+	MessagePart string
+	Payload     []byte
 }
 
 // doRequest makes new request to the server using the c.Method, c.URL and the body.
